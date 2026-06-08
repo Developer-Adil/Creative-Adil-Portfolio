@@ -520,6 +520,67 @@ function App() {
 }
 
 function PortfolioWebsite() {
+  const heroVideoRef = useRef(null);
+  const showcaseVideoRef = useRef(null);
+  const [showreelStarted, setShowreelStarted] = useState(false);
+
+  const isIOSDevice = () => {
+    if (typeof window === "undefined") return false;
+
+    return (
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+    );
+  };
+
+  const playShowreelWithSound = async () => {
+    const video = showcaseVideoRef.current;
+
+    if (!video) return;
+
+    try {
+      video.pause();
+      video.muted = false;
+      video.defaultMuted = false;
+      video.volume = 1;
+      video.removeAttribute("muted");
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "");
+
+      await video.play();
+      setShowreelStarted(true);
+    } catch (error) {
+      console.log("Showreel play with sound failed:", error);
+    }
+  };
+
+  const playHeroMuted = async () => {
+    const video = heroVideoRef.current;
+
+    if (!video) return;
+
+    try {
+      video.muted = true;
+      video.defaultMuted = true;
+      video.volume = 0;
+      video.setAttribute("muted", "");
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "");
+
+      await video.play();
+    } catch (error) {
+      console.log("Hero muted autoplay blocked:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!showreel) return;
+
+    if (!isIOSDevice()) {
+      playHeroMuted();
+    }
+  }, []);
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeProjectCategory, setActiveProjectCategory] = useState("All");
   const [projectSearch, setProjectSearch] = useState("");
@@ -527,8 +588,6 @@ function PortfolioWebsite() {
   const [openProjectGroup, setOpenProjectGroup] = useState(null);
   const [playingVideoKey, setPlayingVideoKey] = useState(null);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
-  const heroVideoRef = useRef(null);
-  const showcaseVideoRef = useRef(null);
 
   const [quoteData, setQuoteData] = useState({
     service: "Instagram Reel Editing",
@@ -572,47 +631,6 @@ function PortfolioWebsite() {
   const handleInlineVideoPlay = (videoKey) => {
     setPlayingVideoKey(videoKey);
   };
-
-  useEffect(() => {
-    const playShowreelVideos = () => {
-      const videos = [heroVideoRef.current, showcaseVideoRef.current];
-
-      videos.forEach((video) => {
-        if (!video) return;
-
-        video.muted = true;
-        video.defaultMuted = true;
-        video.controls = false;
-        video.playsInline = true;
-
-        video.setAttribute("muted", "");
-        video.setAttribute("playsinline", "");
-        video.setAttribute("webkit-playsinline", "");
-        video.setAttribute("preload", "auto");
-
-        const playPromise = video.play();
-
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            // iOS may block autoplay until first user interaction.
-          });
-        }
-      });
-    };
-
-    playShowreelVideos();
-
-    document.addEventListener("touchstart", playShowreelVideos, {
-      once: true,
-      passive: true,
-    });
-    document.addEventListener("click", playShowreelVideos, { once: true });
-
-    return () => {
-      document.removeEventListener("touchstart", playShowreelVideos);
-      document.removeEventListener("click", playShowreelVideos);
-    };
-  }, []);
 
   const [form, setForm] = useState({
     name: "",
@@ -792,7 +810,7 @@ ${briefData.details || "No extra details provided."}`;
       <Navbar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
       <section className="hero" id="home">
-        {showreel && (
+        {showreel && !isIOSDevice() && (
           <video
             ref={heroVideoRef}
             className="hero-video"
@@ -804,8 +822,7 @@ ${briefData.details || "No extra details provided."}`;
             preload="auto"
             controls={false}
             disablePictureInPicture
-            controlsList="nodownload noplaybackrate nofullscreen"
-            aria-label="Creative Adil showreel background video"
+            webkit-playsinline="true"
           >
             <source src={showreel} type="video/mp4" />
           </video>
@@ -867,21 +884,34 @@ ${briefData.details || "No extra details provided."}`;
               </div>
 
               {showreel ? (
-                <video
-                  ref={showcaseVideoRef}
-                  autoPlay
-                  muted
-                  defaultMuted
-                  loop
-                  playsInline
-                  preload="auto"
-                  controls={false}
-                  disablePictureInPicture
-                  controlsList="nodownload noplaybackrate nofullscreen"
-                  aria-label="Creative Adil showreel preview video"
-                >
-                  <source src={showreel} type="video/mp4" />
-                </video>
+                <div className="ios-showreel-box" onClick={playShowreelWithSound}>
+                  <video
+                    ref={showcaseVideoRef}
+                    loop
+                    playsInline
+                    preload="auto"
+                    controls={false}
+                    disablePictureInPicture
+                    controlsList="nodownload noplaybackrate nofullscreen"
+                    webkit-playsinline="true"
+                  >
+                    <source src={showreel} type="video/mp4" />
+                  </video>
+
+                  {!showreelStarted && (
+                    <button
+                      type="button"
+                      className="ios-play-overlay"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        playShowreelWithSound();
+                      }}
+                    >
+                      <Play size={28} />
+                      <span>Tap to Play Showreel</span>
+                    </button>
+                  )}
+                </div>
               ) : (
                 <div className="under-process-box">
                   <div className="under-process-content">
@@ -1147,11 +1177,9 @@ ${briefData.details || "No extra details provided."}`;
                           <video
                             key={firstVideoKey}
                             playsInline
+                            controls
                             autoPlay
-                            muted
-                            controls={false}
-                            disablePictureInPicture
-                            controlsList="nodownload noplaybackrate nofullscreen"
+                            controlsList="nodownload"
                           >
                             <source src={firstVideo.video} type="video/mp4" />
                           </video>
@@ -1998,14 +2026,7 @@ ${briefData.details || "No extra details provided."}`;
               </button>
             </div>
 
-            <video
-              autoPlay
-              muted
-              playsInline
-              controls={false}
-              disablePictureInPicture
-              controlsList="nodownload noplaybackrate nofullscreen"
-            >
+            <video controls autoPlay playsInline controlsList="nodownload">
               <source
                 src={getVideo(selectedProject.videoFile)}
                 type="video/mp4"
