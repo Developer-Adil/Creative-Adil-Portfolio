@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Routes, Route, Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -520,67 +520,6 @@ function App() {
 }
 
 function PortfolioWebsite() {
-  const heroVideoRef = useRef(null);
-  const showcaseVideoRef = useRef(null);
-  const [showreelStarted, setShowreelStarted] = useState(false);
-
-  const isIOSDevice = () => {
-    if (typeof window === "undefined") return false;
-
-    return (
-      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
-    );
-  };
-
-  const playShowreelWithSound = async () => {
-    const video = showcaseVideoRef.current;
-
-    if (!video) return;
-
-    try {
-      video.pause();
-      video.muted = false;
-      video.defaultMuted = false;
-      video.volume = 1;
-      video.removeAttribute("muted");
-      video.setAttribute("playsinline", "");
-      video.setAttribute("webkit-playsinline", "");
-
-      await video.play();
-      setShowreelStarted(true);
-    } catch (error) {
-      console.log("Showreel play with sound failed:", error);
-    }
-  };
-
-  const playHeroMuted = async () => {
-    const video = heroVideoRef.current;
-
-    if (!video) return;
-
-    try {
-      video.muted = true;
-      video.defaultMuted = true;
-      video.volume = 0;
-      video.setAttribute("muted", "");
-      video.setAttribute("playsinline", "");
-      video.setAttribute("webkit-playsinline", "");
-
-      await video.play();
-    } catch (error) {
-      console.log("Hero muted autoplay blocked:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (!showreel) return;
-
-    if (!isIOSDevice()) {
-      playHeroMuted();
-    }
-  }, []);
-
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeProjectCategory, setActiveProjectCategory] = useState("All");
   const [projectSearch, setProjectSearch] = useState("");
@@ -810,20 +749,8 @@ ${briefData.details || "No extra details provided."}`;
       <Navbar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
       <section className="hero" id="home">
-        {showreel && !isIOSDevice() && (
-          <video
-            ref={heroVideoRef}
-            className="hero-video"
-            autoPlay
-            muted
-            defaultMuted
-            loop
-            playsInline
-            preload="auto"
-            controls={false}
-            disablePictureInPicture
-            webkit-playsinline="true"
-          >
+        {showreel && (
+          <video className="hero-video" autoPlay muted loop playsInline>
             <source src={showreel} type="video/mp4" />
           </video>
         )}
@@ -884,34 +811,9 @@ ${briefData.details || "No extra details provided."}`;
               </div>
 
               {showreel ? (
-                <div className="ios-showreel-box" onClick={playShowreelWithSound}>
-                  <video
-                    ref={showcaseVideoRef}
-                    loop
-                    playsInline
-                    preload="auto"
-                    controls={false}
-                    disablePictureInPicture
-                    controlsList="nodownload noplaybackrate nofullscreen"
-                    webkit-playsinline="true"
-                  >
-                    <source src={showreel} type="video/mp4" />
-                  </video>
-
-                  {!showreelStarted && (
-                    <button
-                      type="button"
-                      className="ios-play-overlay"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        playShowreelWithSound();
-                      }}
-                    >
-                      <Play size={28} />
-                      <span>Tap to Play Showreel</span>
-                    </button>
-                  )}
-                </div>
+                <video autoPlay muted loop playsInline>
+                  <source src={showreel} type="video/mp4" />
+                </video>
               ) : (
                 <div className="under-process-box">
                   <div className="under-process-content">
@@ -924,6 +826,9 @@ ${briefData.details || "No extra details provided."}`;
                 </div>
               )}
 
+              <div className="timeline">
+                <div></div>
+              </div>
             </div>
 
             <div className="floating-card card-one">
@@ -2107,7 +2012,7 @@ function AdminDashboard() {
 
   const updateLeadStatus = async (id, status) => {
     try {
-      await axios.patch(`${API_BASE_URL}/api/leads/${id}/status`, {
+      await axios.patch(`http://localhost:5000/api/leads/${id}/status`, {
         status,
       });
 
