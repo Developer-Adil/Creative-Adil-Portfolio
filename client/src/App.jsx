@@ -837,7 +837,7 @@ ${briefData.details || "No extra details provided."}`;
             </div>
 
             <div className="floating-card card-two">
-              <h4>50+</h4>
+              <h4>100+</h4>
               <p>Videos Edited</p>
             </div>
           </motion.div>
