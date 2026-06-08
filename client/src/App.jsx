@@ -878,7 +878,7 @@ ${briefData.details || "No extra details provided."}`;
 
             <div className="stats">
               <div>
-                <h4>50+</h4>
+                <h4>100+</h4>
                 <p>Edited Videos</p>
               </div>
 
