@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Routes, Route, Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -527,6 +527,8 @@ function PortfolioWebsite() {
   const [openProjectGroup, setOpenProjectGroup] = useState(null);
   const [playingVideoKey, setPlayingVideoKey] = useState(null);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
+  const heroVideoRef = useRef(null);
+  const showcaseVideoRef = useRef(null);
 
   const [quoteData, setQuoteData] = useState({
     service: "Instagram Reel Editing",
@@ -570,6 +572,47 @@ function PortfolioWebsite() {
   const handleInlineVideoPlay = (videoKey) => {
     setPlayingVideoKey(videoKey);
   };
+
+  useEffect(() => {
+    const playShowreelVideos = () => {
+      const videos = [heroVideoRef.current, showcaseVideoRef.current];
+
+      videos.forEach((video) => {
+        if (!video) return;
+
+        video.muted = true;
+        video.defaultMuted = true;
+        video.controls = false;
+        video.playsInline = true;
+
+        video.setAttribute("muted", "");
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
+        video.setAttribute("preload", "auto");
+
+        const playPromise = video.play();
+
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // iOS may block autoplay until first user interaction.
+          });
+        }
+      });
+    };
+
+    playShowreelVideos();
+
+    document.addEventListener("touchstart", playShowreelVideos, {
+      once: true,
+      passive: true,
+    });
+    document.addEventListener("click", playShowreelVideos, { once: true });
+
+    return () => {
+      document.removeEventListener("touchstart", playShowreelVideos);
+      document.removeEventListener("click", playShowreelVideos);
+    };
+  }, []);
 
   const [form, setForm] = useState({
     name: "",
@@ -750,7 +793,20 @@ ${briefData.details || "No extra details provided."}`;
 
       <section className="hero" id="home">
         {showreel && (
-          <video className="hero-video" autoPlay muted loop playsInline>
+          <video
+            ref={heroVideoRef}
+            className="hero-video"
+            autoPlay
+            muted
+            defaultMuted
+            loop
+            playsInline
+            preload="auto"
+            controls={false}
+            disablePictureInPicture
+            controlsList="nodownload noplaybackrate nofullscreen"
+            aria-label="Creative Adil showreel background video"
+          >
             <source src={showreel} type="video/mp4" />
           </video>
         )}
@@ -811,7 +867,19 @@ ${briefData.details || "No extra details provided."}`;
               </div>
 
               {showreel ? (
-                <video autoPlay muted loop playsInline>
+                <video
+                  ref={showcaseVideoRef}
+                  autoPlay
+                  muted
+                  defaultMuted
+                  loop
+                  playsInline
+                  preload="auto"
+                  controls={false}
+                  disablePictureInPicture
+                  controlsList="nodownload noplaybackrate nofullscreen"
+                  aria-label="Creative Adil showreel preview video"
+                >
                   <source src={showreel} type="video/mp4" />
                 </video>
               ) : (
@@ -826,9 +894,6 @@ ${briefData.details || "No extra details provided."}`;
                 </div>
               )}
 
-              <div className="timeline">
-                <div></div>
-              </div>
             </div>
 
             <div className="floating-card card-one">
@@ -1082,9 +1147,11 @@ ${briefData.details || "No extra details provided."}`;
                           <video
                             key={firstVideoKey}
                             playsInline
-                            controls
                             autoPlay
-                            controlsList="nodownload"
+                            muted
+                            controls={false}
+                            disablePictureInPicture
+                            controlsList="nodownload noplaybackrate nofullscreen"
                           >
                             <source src={firstVideo.video} type="video/mp4" />
                           </video>
@@ -1931,7 +1998,14 @@ ${briefData.details || "No extra details provided."}`;
               </button>
             </div>
 
-            <video controls autoPlay playsInline controlsList="nodownload">
+            <video
+              autoPlay
+              muted
+              playsInline
+              controls={false}
+              disablePictureInPicture
+              controlsList="nodownload noplaybackrate nofullscreen"
+            >
               <source
                 src={getVideo(selectedProject.videoFile)}
                 type="video/mp4"
@@ -2012,7 +2086,7 @@ function AdminDashboard() {
 
   const updateLeadStatus = async (id, status) => {
     try {
-      await axios.patch(`http://localhost:5000/api/leads/${id}/status`, {
+      await axios.patch(`${API_BASE_URL}/api/leads/${id}/status`, {
         status,
       });
 
