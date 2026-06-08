@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Routes, Route, Link } from "react-router-dom";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 import { motion } from "framer-motion";
 import {
   Play,
@@ -40,6 +38,9 @@ import {
   Calculator,
   ChevronDown,
 } from "lucide-react";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const videoModules = import.meta.glob("./assets/videos/*.mp4", {
   eager: true,
   import: "default",
@@ -54,7 +55,7 @@ const thumbnailModules = import.meta.glob(
   {
     eager: true,
     import: "default",
-  }
+  },
 );
 
 const getVideo = (fileName) => {
@@ -127,7 +128,7 @@ const projectGroups = [
     filePrefix: "apple",
     desc: "Apple-style editing with clean cuts, audio balance, B-roll, and complete edit flow.",
   },
-  
+
   {
     title: "Shape Morphing Edit",
     shortTitle: "Shape Morphing",
@@ -144,8 +145,7 @@ const projectGroups = [
     filePrefix: "ads",
     desc: "Product advertisement videos with premium transitions, motion text, CTA, and brand-focused pacing.",
   },
-  
-  
+    
 ];
 
 const getGroupVideos = (filePrefix) => {
@@ -223,7 +223,7 @@ const tools = [
 ];
 
 const services = [
-   {
+  {
     icon: <Camera />,
     title: "SaaS Animation Editing",
     desc: "SaaS animation videos with clean cuts, B-roll, subtitles, sound balancing, intro, outro, and storytelling.",
@@ -253,15 +253,13 @@ const services = [
     title: "Product Ad Editing",
     desc: "High-converting product ads with premium transitions, text animation, call-to-action, and brand-focused editing.",
   },
-  
- 
-  
+
   {
     icon: <Play />,
     title: "Apple Style Editing",
     desc: "Apple-style edits with clean cuts, smooth pacing, audio balance, B-roll integration, and polished final videos.",
   },
- 
+
   // {
   //   icon: <Palette />,
   //   title: "Premium Brand Pack",
@@ -316,7 +314,6 @@ const processSteps = [
 ];
 
 const pricingPackages = [
-
   {
     name: "Documentary Editing",
     price: "₹3,499",
@@ -388,7 +385,6 @@ const pricingPackages = [
       "Subtitles and text",
       "Sound balancing",
       "2 revisions",
-
     ],
   },
   {
@@ -401,7 +397,6 @@ const pricingPackages = [
       "Creative visual effects",
       "Dynamic storytelling",
       "2 revisions",
-
     ],
   },
 ];
@@ -513,7 +508,6 @@ const quoteBasePrices = {
   "Motion Graphics": 1999,
   "Documentary Editing": 3499,
   "Shape Morphing Editing": 2499,
-  
 };
 
 function App() {
@@ -533,41 +527,6 @@ function PortfolioWebsite() {
   const [openProjectGroup, setOpenProjectGroup] = useState(null);
   const [playingVideoKey, setPlayingVideoKey] = useState(null);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
-
-  const heroVideoRef = useRef(null);
-  const showcaseVideoRef = useRef(null);
-
-  useEffect(() => {
-    const tryPlayShowreelVideos = () => {
-      const videos = [heroVideoRef.current, showcaseVideoRef.current];
-
-      videos.forEach((video) => {
-        if (!video) return;
-
-        video.muted = true;
-        video.defaultMuted = true;
-        video.playsInline = true;
-
-        const playPromise = video.play();
-
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            // iOS Safari may block autoplay until the first user touch.
-          });
-        }
-      });
-    };
-
-    tryPlayShowreelVideos();
-
-    document.addEventListener("touchstart", tryPlayShowreelVideos, { once: true });
-    document.addEventListener("click", tryPlayShowreelVideos, { once: true });
-
-    return () => {
-      document.removeEventListener("touchstart", tryPlayShowreelVideos);
-      document.removeEventListener("click", tryPlayShowreelVideos);
-    };
-  }, []);
 
   const [quoteData, setQuoteData] = useState({
     service: "Instagram Reel Editing",
@@ -655,7 +614,7 @@ function PortfolioWebsite() {
 
     return Math.round(
       base * lengthMultiplier[quoteData.length] +
-        urgencyExtra[quoteData.urgency]
+        urgencyExtra[quoteData.urgency],
     );
   };
 
@@ -791,20 +750,7 @@ ${briefData.details || "No extra details provided."}`;
 
       <section className="hero" id="home">
         {showreel && (
-          <video
-            ref={heroVideoRef}
-            className="hero-video"
-            autoPlay
-            muted
-            defaultMuted
-            loop
-            playsInline
-            webkit-playsinline="true"
-            preload="auto"
-            controls={false}
-            disablePictureInPicture
-            onCanPlay={(e) => e.currentTarget.play().catch(() => {})}
-          >
+          <video className="hero-video" autoPlay muted loop playsInline>
             <source src={showreel} type="video/mp4" />
           </video>
         )}
@@ -865,18 +811,7 @@ ${briefData.details || "No extra details provided."}`;
               </div>
 
               {showreel ? (
-                <video
-                  ref={showcaseVideoRef}
-                  autoPlay
-                  muted
-                  defaultMuted
-                  loop
-                  playsInline
-                  webkit-playsinline="true"
-                  preload="auto"
-                  controls
-                  onCanPlay={(e) => e.currentTarget.play().catch(() => {})}
-                >
+                <video autoPlay muted loop playsInline>
                   <source src={showreel} type="video/mp4" />
                 </video>
               ) : (
@@ -1676,7 +1611,7 @@ ${briefData.details || "No extra details provided."}`;
           <div className="cta-actions">
             <a
               href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-                "Hello Creative Adil, I want to discuss a video editing project."
+                "Hello Creative Adil, I want to discuss a video editing project.",
               )}`}
               target="_blank"
               rel="noreferrer"
@@ -1821,7 +1756,7 @@ ${briefData.details || "No extra details provided."}`;
                 className="modal-hire-btn"
                 onClick={() => {
                   const selectedService = getServiceFromProjectCategory(
-                    openProjectGroup.category
+                    openProjectGroup.category,
                   );
 
                   setOpenProjectGroup(null);
@@ -1848,12 +1783,12 @@ ${briefData.details || "No extra details provided."}`;
                     };
                     const videoKey = getInlineVideoKey(
                       openProjectGroup.category,
-                      videoItem.fileName
+                      videoItem.fileName,
                     );
                     const isVideoPlaying = playingVideoKey === videoKey;
                     const videoThumbnail = getThumbnail(
                       openProjectGroup.filePrefix,
-                      videoItem.fileName
+                      videoItem.fileName,
                     );
 
                     return (
@@ -1928,7 +1863,7 @@ ${briefData.details || "No extra details provided."}`;
                         </div>
                       </div>
                     );
-                  }
+                  },
                 )}
               </div>
             ) : (
@@ -1982,7 +1917,7 @@ ${briefData.details || "No extra details provided."}`;
                 className="modal-hire-btn"
                 onClick={() => {
                   const selectedService = getServiceFromProjectCategory(
-                    selectedProject.category
+                    selectedProject.category,
                   );
 
                   setSelectedProject(null);
@@ -2014,7 +1949,7 @@ ${briefData.details || "No extra details provided."}`;
 
 function AdminDashboard() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(
-    localStorage.getItem("creativeAdilAdmin") === "true"
+    localStorage.getItem("creativeAdilAdmin") === "true",
   );
 
   const [loginData, setLoginData] = useState({
@@ -2046,7 +1981,10 @@ function AdminDashboard() {
   const handleAdminLogin = (e) => {
     e.preventDefault();
 
-    if (loginData.username === "admin" && loginData.password === "creative123") {
+    if (
+      loginData.username === "admin" &&
+      loginData.password === "creative123"
+    ) {
       localStorage.setItem("creativeAdilAdmin", "true");
       setIsAdminLoggedIn(true);
     } else {
@@ -2074,12 +2012,12 @@ function AdminDashboard() {
 
   const updateLeadStatus = async (id, status) => {
     try {
-      await axios.patch(`${API_BASE_URL}/api/leads/${id}/status`, {
+      await axios.patch(`http://localhost:5000/api/leads/${id}/status`, {
         status,
       });
 
       setLeads((prev) =>
-        prev.map((lead) => (lead._id === id ? { ...lead, status } : lead))
+        prev.map((lead) => (lead._id === id ? { ...lead, status } : lead)),
       );
     } catch (error) {
       console.log("Status update error:", error);
@@ -2089,7 +2027,7 @@ function AdminDashboard() {
 
   const deleteLead = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this lead?"
+      "Are you sure you want to delete this lead?",
     );
 
     if (!confirmDelete) return;
@@ -2141,7 +2079,7 @@ function AdminDashboard() {
       ...rows.map((row) =>
         row
           .map((value) => `"${String(value).replaceAll('"', '""')}"`)
-          .join(",")
+          .join(","),
       ),
     ].join("\n");
 
@@ -2232,7 +2170,10 @@ function AdminDashboard() {
             Export CSV
           </button>
 
-          <button className="admin-btn logout-admin" onClick={handleAdminLogout}>
+          <button
+            className="admin-btn logout-admin"
+            onClick={handleAdminLogout}
+          >
             Logout
           </button>
         </div>
@@ -2384,7 +2325,7 @@ function FloatingActions() {
     <div className="floating-actions">
       <a
         href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-          whatsappText
+          whatsappText,
         )}`}
         target="_blank"
         rel="noreferrer"
