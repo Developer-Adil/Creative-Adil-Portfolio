@@ -787,8 +787,8 @@ ${briefData.details || "No extra details provided."}`;
               </a>
 
               <a
-                href="/files/creative-adil-video-editor-resume.pdf"
-                download
+                href="files\Video_Editor_Motion_Graphics_Resume_Final.pdf"
+                download="Video_Editor_Motion_Graphics_Resume_Final.pdf"
                 className="btn resume-btn"
               >
                 <Download size={18} />
